@@ -1,0 +1,244 @@
+```html
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flor de un instante</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+            color: #fff;
+            font-family: 'Segoe UI', sans-serif;
+
+            background: linear-gradient(
+                to top,
+                #1a1a2e 80%,
+                #16213e 100%
+            );
+
+            transition: background 1.5s ease;
+        }
+
+        #canvas {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+
+            filter:
+                drop-shadow(0 0 16px #fff8)
+                drop-shadow(0 0 32px #e0c3fc88);
+        }
+
+        #subtitulos {
+            position: fixed;
+            bottom: 40px;
+            left: 0;
+            width: 100%;
+            z-index: 2;
+
+            padding: 0 24px;
+            text-align: center;
+            font-family: 'Dancing Script', cursive;
+            font-size: clamp(1.4rem, 3.5vw, 2rem);
+            line-height: 1.5;
+            letter-spacing: 1px;
+
+            color: #fff;
+            text-shadow:
+                0 0 12px #000,
+                0 0 24px #000,
+                0 0 32px #fff8;
+
+            opacity: 0;
+            transition: opacity 1.2s cubic-bezier(.4, 0, .2, 1);
+            pointer-events: none;
+        }
+
+        #playButton {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 5;
+
+            background: linear-gradient(135deg, #ff9ec5, #b5ead7);
+            color: #16213e;
+            border: none;
+            padding: 10px 18px;
+            font-size: 1rem;
+            border-radius: 999px;
+            cursor: pointer;
+
+            box-shadow: 0 6px 18px #0005;
+            backdrop-filter: blur(6px);
+        }
+
+        #playButton:disabled {
+            opacity: 0.6;
+            cursor: default;
+        }
+
+        #continuarButton {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            z-index: 4;
+
+            transform: translate(-50%, -50%) translateY(-155px);
+
+            padding: 12px 30px;
+            border: 1px solid #ffe1eb;
+            border-radius: 999px;
+
+            background: linear-gradient(135deg, #ffb3c6, #ffd166);
+            color: #651b40;
+
+            font-family: 'Segoe UI', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+
+            box-shadow:
+                0 0 18px #ff648c73,
+                0 0 35px #ffd16633;
+
+            cursor: pointer;
+
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+
+            transition:
+                opacity 1s ease,
+                box-shadow 0.4s ease,
+                background 0.4s ease;
+        }
+
+        #continuarButton.visible {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+
+        #continuarButton:hover {
+            background: linear-gradient(135deg, #ff8fab, #ffe08a);
+            box-shadow:
+                0 0 25px #ff648cb3,
+                0 0 45px #ffd16659;
+        }
+
+        #continuarButton:active {
+            transform: translate(-50%, -50%) translateY(-155px) scale(.96);
+        }
+
+        /* Escena del video */
+        #escenaVideo {
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+
+            display: none;
+            justify-content: center;
+            align-items: center;
+
+            padding: 20px;
+
+            background: linear-gradient(
+                135deg,
+                #160d25,
+                #321526,
+                #171126
+            );
+
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+
+        #escenaVideo.visible {
+            display: flex;
+            opacity: 1;
+        }
+
+        #videoSorpresa {
+            display: block;
+            width: 100%;
+            max-width: 900px;
+            max-height: 85vh;
+
+            border-radius: 18px;
+            box-shadow: 0 0 35px rgba(210, 80, 180, 0.35);
+            background: #000;
+        }
+
+        @media (max-width: 600px) {
+            #subtitulos {
+                bottom: 28px;
+                padding: 0 18px;
+            }
+
+            #continuarButton {
+                transform: translate(-50%, -50%) translateY(-125px);
+            }
+
+            #continuarButton:active {
+                transform: translate(-50%, -50%) translateY(-125px) scale(.96);
+            }
+
+            #videoSorpresa {
+                max-height: 75vh;
+                border-radius: 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="canvas"></canvas>
+
+    <div id="subtitulos"></div>
+
+    <button id="continuarButton" type="button">
+        Continuar ❤️
+    </button>
+
+    <button
+        id="playButton"
+        type="button"
+        aria-label="Reproducir audio y subtítulos"
+    >
+        Reproducir
+    </button>
+
+    <!-- Escena que aparece al pulsar Continuar -->
+    <div id="escenaVideo">
+        <video
+            id="videoSorpresa"
+            controls
+            playsinline
+            preload="metadata"
+        >
+            <source src="cumpleanos.mp4" type="video/mp4">
+            Tu navegador no puede reproducir este video.
+        </video>
+    </div>
+
+    <script src="Java.js"></script>
+</body>
+</html>
+```
