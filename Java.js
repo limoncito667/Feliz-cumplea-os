@@ -1,3 +1,4 @@
+
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
@@ -32,7 +33,11 @@ const coloresFlores = [
 
 // Ajustar Canvas a la pantalla
 function ajustarCanvas() {
-    const dpr = window.devicePixelRatio || 1;
+    const esMovil = window.innerWidth <= 600;
+    const dpr = Math.min(
+        window.devicePixelRatio || 1,
+        esMovil ? 1.25 : 1.5
+    );
 
     canvas.width = Math.round(window.innerWidth * dpr);
     canvas.height = Math.round(window.innerHeight * dpr);
@@ -155,7 +160,7 @@ function dibujarPetalo(p) {
 
     ctx.fillStyle = p.color;
     ctx.shadowColor = '#ffffff';
-    ctx.shadowBlur = 16;
+    ctx.shadowBlur = 8;
     ctx.fill();
 
     ctx.restore();
@@ -210,7 +215,7 @@ function dibujarLuna(l) {
 
     ctx.fillStyle = brillo;
     ctx.shadowColor = brillo;
-    ctx.shadowBlur = 45;
+    ctx.shadowBlur = 32;
     ctx.fill();
 
     // Degradado interior
@@ -229,7 +234,7 @@ function dibujarLuna(l) {
 
     ctx.fillStyle = gradiente;
     ctx.shadowColor = brillo;
-    ctx.shadowBlur = 24;
+    ctx.shadowBlur = 18;
     ctx.fill();
 
     // Borde luminoso
@@ -238,7 +243,7 @@ function dibujarLuna(l) {
     ctx.lineWidth = 3.5;
     ctx.strokeStyle = borde;
     ctx.shadowColor = borde;
-    ctx.shadowBlur = 15;
+    ctx.shadowBlur = 10;
     ctx.stroke();
 
     // Reflejo de luz
@@ -253,7 +258,7 @@ function dibujarLuna(l) {
 
     ctx.fillStyle = 'rgba(255,255,255,0.45)';
     ctx.shadowColor = '#ffffff';
-    ctx.shadowBlur = 12;
+    ctx.shadowBlur = 8;
     ctx.fill();
 
     ctx.restore();
@@ -290,7 +295,7 @@ function dibujarFlor(f) {
 
     ctx.fillStyle = grad;
     ctx.shadowColor = colorFlor;
-    ctx.shadowBlur = 18;
+    ctx.shadowBlur = 10;
     ctx.fill();
 
     // Pétalos de cada flor
@@ -313,7 +318,7 @@ function dibujarFlor(f) {
 
         ctx.fillStyle = colorFlor;
         ctx.shadowColor = colorFlor;
-        ctx.shadowBlur = 14;
+        ctx.shadowBlur = 8;
         ctx.fill();
 
         ctx.lineWidth = 2;
@@ -404,8 +409,11 @@ function animar() {
         }
     });
 
-    // Crear y animar pétalos que caen
-    if (Math.random() < 0.08) {
+    // Crear y animar pétalos que caen: menos carga en móviles
+    const esMovil = window.innerWidth <= 600;
+    const maxPetalos = esMovil ? 18 : 35;
+
+    if (petalos.length < maxPetalos && Math.random() < 0.045) {
         petalos.push(crearPetalo());
     }
 
@@ -631,4 +639,16 @@ window.addEventListener('resize', () => {
             Math.min(f.y, window.innerHeight - f.r)
         );
     });
+});
+
+// Pausar la animación cuando la pestaña no está visible
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+        if (animationId !== null) {
+            cancelAnimationFrame(animationId);
+            animationId = null;
+        }
+    } else if (animationId === null) {
+        animar();
+    }
 });
